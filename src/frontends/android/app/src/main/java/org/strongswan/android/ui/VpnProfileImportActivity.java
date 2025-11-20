@@ -313,17 +313,15 @@ public class VpnProfileImportActivity extends AppCompatActivity
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
-		switch (item.getItemId())
-		{
-			case android.R.id.home:
-				finish();
-				return true;
-			case R.id.menu_accept:
-				saveProfile();
-				return true;
-			default:
-				return super.onOptionsItemSelected(item);
+		int itemId = item.getItemId();
+		if (itemId == android.R.id.home) {
+			finish();
+			return true;
+		} else if (itemId == R.id.menu_accept) {
+			saveProfile();
+			return true;
 		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	private void loadProfile(Uri uri)
@@ -410,10 +408,9 @@ public class VpnProfileImportActivity extends AppCompatActivity
 				mUsername.setEnabled(false);
 			}
 			mPassword.setText(mProfile.getPassword());
-			if (!TextUtils.isEmpty(mProfile.getPassword()))
+			if (mProfile.getPassword() != null && !mProfile.getPassword().isEmpty())
 			{
 				mPassword.setEnabled(false);
-				mSharedSecretWarning.setVisibility(View.VISIBLE);
 			}
 		}
 
@@ -534,7 +531,7 @@ public class VpnProfileImportActivity extends AppCompatActivity
 			if (type.has(VpnTypeFeature.USER_PASS))
 			{
 				profile.setUsername(local.optString("eap_id", null));
-				profile.setPassword(local.optString("shared_secret", null));
+				profile.setPassword(local.optString("secret", null));
 			}
 
 			if (type.has(VpnTypeFeature.CERTIFICATE))

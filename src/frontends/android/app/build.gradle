@@ -1,25 +1,33 @@
-apply plugin: 'com.android.application'
+plugins {
+//    id "com.android.application"
+    id "com.android.library"
+    id "maven-publish"
+}
 
 android {
-    namespace = 'org.strongswan.android'
+    compileSdkVersion 33
+
+    namespace 'org.strongswan.android'
+    
+    ndkVersion rootProject.ext.ndkVersion
 
     defaultConfig {
-        applicationId "org.strongswan.android"
-        compileSdk = 36
+//        applicationId "org.strongswan.android"
         minSdkVersion 21
         targetSdkVersion 36
 
         versionCode 96
         versionName "2.6.2"
 
-        externalNativeBuild {
-            ndkBuild {
-                arguments '-j' + Runtime.runtime.availableProcessors()
-            }
-        }
+    task buildNative(type: Exec) {
+        workingDir 'src/main/jni'
+        commandLine "${android.ndkDirectory}\\ndk-build.cmd", '-j', Runtime.runtime.availableProcessors()
     }
 
-    ndkVersion = "27.3.13750724"
+    task cleanNative(type: Exec) {
+        workingDir 'src/main/jni'
+        commandLine "${android.ndkDirectory}\\ndk-build.cmd", 'clean'
+    }
 
     externalNativeBuild {
         ndkBuild {
@@ -54,4 +62,19 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.assertj:assertj-core:3.27.6'
     testImplementation 'org.mockito:mockito-core:5.20.0'
+}
+
+// This is also for the maven-publish plugin. It will publish a "-sources" jar file along with the compiled jar.
+publishing {
+    publications {
+        release(MavenPublication){
+            groupId = "org.strongswan.android"
+            artifactId = "strongswan"
+            version = "1.0"
+
+            afterEvaluate {
+                from components.release
+            }
+        }
+    }
 }
